@@ -20,33 +20,25 @@
         'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
         })(window,document,'script','dataLayer','{{ gtm_container_id }}');</script>
 
-        <script>
-            window.CookieNotice.on('accepted', (consentGroup) => {
-                if (consentGroup === '{{ group }}') {
-                    console.log('provided consent')
+        {{ if consent_grants }}
+            <script>
+                window.CookieNotice.on('accepted', (consentGroup) => {
+                    if (consentGroup === '{{ group }}') {
+                        console.log('provided {{ consent_grants | ampersand_list }} consent')
 
-                    gtag('consent', 'update', {
-                        ad_user_data: 'granted',
-                        ad_personalization: 'granted',
-                        ad_storage: 'granted',
-                        analytics_storage: 'granted'
-                    })
-                }
-            })
+                        gtag('consent', 'update', {{$ json_encode(array_fill_keys($consent_grants, 'granted')) $}})
+                    }
+                })
 
-            window.CookieNotice.on('declined', (consentGroup) => {
-                if (consentGroup === '{{ group }}') {
-                    console.log('revoked consent')
+                window.CookieNotice.on('declined', (consentGroup) => {
+                    if (consentGroup === '{{ group }}') {
+                        console.log('revoked {{ consent_grants | ampersand_list }} consent')
 
-                    gtag('consent', 'update', {
-                        ad_user_data: 'denied',
-                        ad_personalization: 'denied',
-                        ad_storage: 'denied',
-                        analytics_storage: 'denied'
-                    })
-                }
-            })
-        </script>
+                        gtag('consent', 'update', gtag('consent', 'update', {{$ json_encode(array_fill_keys($consent_grants, 'denied')) $}}))
+                    }
+                })
+            </script>
+        {{ /if }}
     {{ /if }}
 
     {{ if script_type === 'meta-pixel' }}
